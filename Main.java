@@ -12,12 +12,106 @@ public class Main{
     public static Pessoas database;
 
     public static void print(String msg){System.out.println(msg);}
-    public static void waitEnter() throws IOException{System.in.read();}
+    public static void waitEnter() throws IOException{
+        inputHandler.nextLine();
+    }
     public static void limparConsole() {
-        for (int i = 0; i < 30; i++) print("");
+        for (int i = 0; i < 60; i++) print("");
     }
 
-    public static void Dialogo_AdicionarPessoa() throws DatabaseException, IOException{
+    public static String lerNome(boolean insistir){
+        String nome = "";
+
+        //Pedindo Nome
+        print("Digite um nome válido (Mínimo de 4 caracteres não vazios e no máximo 12): ");
+        while (nome == ""){
+            try{
+                nome = inputHandler.nextLine().trim();
+
+                if (nome != "" && !Pessoa.nomeValido(nome)) throw new NomeInvalido("Nome inválido");
+            }
+            catch (NomeInvalido e){
+                nome = "";
+                if (!insistir) break;
+
+                print("Nome inválido");
+            }
+        }
+        limparConsole();
+
+        return nome;
+    }
+
+    public static String lerEmail(boolean insistir){
+        String email = "";
+
+        //Pedindo Email
+        print("Digite um email válido (xxxx@dominio.com): ");
+        while (email == ""){
+            try{
+                email = inputHandler.nextLine().trim();
+
+                if (email != "" && !Pessoa.emailValido(email)) throw new EmailInvalido("Email inválido");
+            }
+            catch (EmailInvalido e){
+                email = "";
+                if (!insistir) break;
+
+                print("Email inválido");
+            }
+        }
+        limparConsole();
+
+        return email;
+    }
+
+    public static int lerIdade(boolean insistir){
+        int idade = -1;
+
+        //Pedindo Email
+        print("Digite uma idade válida (Entre 0 e 170 anos): ");
+        while (idade == -1){
+            try{
+                idade = Integer.parseInt(inputHandler.nextLine());
+
+                if (Pessoa.idadeValida(idade)) break;
+            }
+            catch (NumberFormatException e){}
+
+            idade = -1;
+            if (!insistir) break;
+
+            print("Idade inválida");
+        }
+        limparConsole();
+
+        return idade;
+    }
+
+    public static int lerTelefone(boolean insistir){
+        int telefone = -1;
+
+        //Pedindo Email
+        print("Digite um número telefônico válido (9 dígitos): ");
+        while (telefone == -1){
+            try{
+                telefone = Integer.parseInt(inputHandler.nextLine());
+
+                if (Pessoa.telefoneValido(telefone)) break;
+            }
+            catch (NumberFormatException e){}
+
+            telefone = -1;
+            if (!insistir) break;
+
+            print("Telefone inválido");
+        }
+        limparConsole();
+
+        return telefone;
+    }
+
+    public static void Dialogo_AdicionarPessoa() throws Exception{
         Pessoa p = new Pessoa();
 
         String nome = null;
@@ -25,79 +119,19 @@ public class Main{
         int idade = -1;
         int telefone = -1;
 
-        //Pedindo Nome
-        print("Digite um nome válido (Mínimo de 4 caracteres não vazios e no máximo 12): ");
-        while (nome == null){
-            try{
-                if (inputHandler.hasNext()){
-                    nome = inputHandler.nextLine();
+        nome = lerNome(true);
+        p.setNome(nome);
 
-                    p.setNome(nome);
-                }
-            }
-            catch (NomeInvalido e){
-                nome = null;
+        email = lerEmail(true);
+        p.setEmail(email);
 
-                limparConsole();
-                print("Nome inválido");
-            }
-        }
+        idade = lerIdade(true);
+        p.setIdade(idade);
+
+        telefone = lerTelefone(true);
+        p.setTelefone(telefone);
+
         limparConsole();
-
-        //Pedindo Email
-        print("Digite um email válido (xxxx@dominio.com): ");
-        while (email == null){
-            try{
-                if (inputHandler.hasNext()){
-                    email = inputHandler.nextLine();
-                    p.setEmail(email);
-                }
-            }
-            catch (EmailInvalido e){
-                email = null;
-
-                limparConsole();
-                print("Email inválido");
-            }
-        }
-        limparConsole();
-
-        //Pedindo Idade
-        print("Digite uma idade válida (Entre 0 e 170 anos): ");
-        while (idade == -1){
-            try{
-                if (inputHandler.hasNextInt()){
-                    idade = inputHandler.nextInt();
-                    p.setIdade(idade);
-                }
-            }
-            catch (IdadeInvalida e){
-                idade = -1;
-
-                limparConsole();
-                print("Idade inválida");
-            }
-        }
-        limparConsole();
-
-        //Pedindo Telefone
-        print("Digite um número telefônico válido (9 dígitos): ");
-        while (telefone == -1){
-            try{
-                if (inputHandler.hasNextInt()){
-                    telefone = inputHandler.nextInt();
-                    p.setTelefone(telefone);
-                }
-            }
-            catch (TelefoneInvalido e){
-                telefone = -1;
-
-                limparConsole();
-                print("Telefone inválido");
-            }
-        }
-        limparConsole();
-        //Fim
 
         boolean pessoaAdicionada = false;
 
@@ -119,18 +153,12 @@ public class Main{
 
     public static void Dialogo_ImprimirPessoa() throws IOException{
         String nome = null;
-
         boolean pessoaEncontrada = true;
 
-        //Pedindo Nome
-        print("Digite um nome válido (Mínimo de 4 caracteres não vazios e no máximo 12): ");
+        nome = lerNome(false);
+        
         try{
-            if (inputHandler.hasNext()){
-                nome = inputHandler.next();
-                limparConsole();
-
-                database.read(nome);
-            }
+            database.read(nome);
         }
         catch (DatabaseException e){ 
             pessoaEncontrada = false;
@@ -148,24 +176,22 @@ public class Main{
     }
 
     public static void Dialogo_AlterarEmail(String nome) throws DatabaseException, IOException{
-        String email = null;
+        String email = "";
 
         //Pedindo Email
+        email = lerEmail(false);
         print("Digite um email válido (xxxx@dominio.com): ");
         try{
-            if (inputHandler.hasNext()){
-                email = inputHandler.next();
-                database.updateEmail(nome, email);
-            }
+            database.updateEmail(nome, email);
         }
         catch (EmailInvalido e){
-            email = null;
+            email = "";
 
             limparConsole();
         }
     
         limparConsole();
-        if (email == null){
+        if (email == ""){
             print("Email inválido");
         }
         else{
@@ -181,12 +207,9 @@ public class Main{
         int idade = -1;
 
         //Pedindo Idade
-        print("Digite uma idade válida (Entre 0 e 170 anos): ");
+        idade = lerIdade(false);
         try{
-            if (inputHandler.hasNextInt()){
-                idade = inputHandler.nextInt();
-                database.updateIdade(nome, idade);
-            }
+            database.updateIdade(nome, idade);
         }
         catch (IdadeInvalida e){
             idade = -1;
@@ -211,12 +234,10 @@ public class Main{
         int telefone = -1;
 
         //Pedindo Telefone
-        print("Digite um número telefônico válido (9 dígitos): ");
+        telefone = lerTelefone(false);
+
         try{
-            if (inputHandler.hasNextInt()){
-                telefone = inputHandler.nextInt();
-                database.updateTelefone(nome, telefone);
-            }
+            database.updateTelefone(nome, telefone);
         }
         catch (TelefoneInvalido e){
             telefone = -1;
@@ -238,20 +259,10 @@ public class Main{
         limparConsole();
     }
     public static void Dialogo_AtualizarPessoa() throws IOException, DatabaseException{
-        String nome = null;
-
+        String nome = "";
         boolean pessoaEncontrada = true;
 
-        //Pedindo Nome
-        print("Digite um nome válido (Mínimo de 4 caracteres não vazios e no máximo 12): ");
-        try{
-            if (inputHandler.hasNext()){
-                nome = inputHandler.next();
-                limparConsole();
-            }
-        }
-        catch (Exception e){}
-
+        nome = lerNome(false);
         pessoaEncontrada = database.existe(nome);
         if (!pessoaEncontrada){
             print("Pessoa não encontrada");
@@ -279,18 +290,14 @@ public class Main{
 
             while (operation == -1){
                 try{
-                    if (inputHandler.hasNextInt()) operation = inputHandler.nextInt();
+                    operation = Integer.parseInt(inputHandler.nextLine());
 
-                    if (operation < 1 || operation > 4) {
-                        operation = -1;
+                    if (operation >= 1 && operation <= 5) break;
+                }
+                catch(NumberFormatException e){}
 
-                        throw new Exception("Operação inválida");
-                    }
-                }
-                catch(Exception e){
-                    inputHandler.nextLine();
-                    print("Operação inválida");
-                }
+                operation = -1;
+                print("Operação inválida");
             }
 
             //Parte 4 (escolhendo operação)
@@ -317,18 +324,12 @@ public class Main{
 
     public static void Dialogo_RemoverPessoa() throws IOException{
         String nome = null;
-
         boolean pessoaEncontrada = true;
 
-        //Pedindo Nome
-        print("Digite um nome válido (Mínimo de 4 caracteres não vazios e no máximo 12): ");
-        try{
-            if (inputHandler.hasNext()){
-                nome = inputHandler.next();
-                limparConsole();
+        nome = lerNome(false);
 
-                database.delete(nome);
-            }
+        try{
+            database.delete(nome);
         }
         catch (DatabaseException e){ 
             pessoaEncontrada = false;
@@ -379,18 +380,14 @@ public class Main{
 
             while (operation == -1){
                 try{
-                    if (inputHandler.hasNextInt()) operation = inputHandler.nextInt();
+                    operation = Integer.parseInt(inputHandler.nextLine());
 
-                    if (operation < 1 || operation > 5) {
-                        operation = -1;
+                    if (operation >= 1 && operation <= 5) break;
+                }
+                catch(NumberFormatException e){}
 
-                        throw new Exception("Operação inválida");
-                    }
-                }
-                catch(Exception e){
-                    inputHandler.nextLine();
-                    print("Operação inválida");
-                }
+                operation = -1;
+                print("Operação inválida");
             }
 
             //Parte 4 (escolhendo operação)
