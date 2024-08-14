@@ -7,7 +7,15 @@ import Excecoes.IdadeInvalida;
 import Excecoes.NomeInvalido;
 import Excecoes.TelefoneInvalido;
 
-public class Main{
+/** Implementação de toda a interface do banco de dados no terminal
+ * @author Luiz Eduardo Teixeira Lima -- 554648
+ * @author Luiz Felipe de Sousa Cordeiro -- 552566
+ * @author Joélio Pinheiro -- 554968
+ */
+public class Main{  
+    /**
+     * Lida com todas as leituras de input do usuário
+     */
     public static Scanner inputHandler = new Scanner(System.in);
     public static Pessoas database;
 
@@ -15,10 +23,19 @@ public class Main{
     public static void waitEnter() throws IOException{
         inputHandler.nextLine();
     }
+
+
+    /**
+     * Simula uma limpagem do console ao printar várias novas linhas vazias
+     */
     public static void limparConsole() {
         for (int i = 0; i < 60; i++) print("");
     }
 
+    /**
+     * @param insistir Deve entrar em loop até um nome válido ser dado como input?
+     * @return Nome válido de uma pessoa dada como input ou, caso contrário, String vazia
+     */
     public static String lerNome(boolean insistir){
         String nome = "";
 
@@ -42,6 +59,10 @@ public class Main{
         return nome;
     }
 
+    /**
+     * @param insistir Deve entrar em loop até um nome válido ser dado como input?
+     * @return Email válido de uma pessoa dada como input ou, caso contrário, String vazia
+     */
     public static String lerEmail(boolean insistir){
         String email = "";
 
@@ -65,6 +86,10 @@ public class Main{
         return email;
     }
 
+    /**
+     * @param insistir Deve entrar em loop até um nome válido ser dado como input?
+     * @return Idade válida de uma pessoa dada como input ou, caso contrário, -1
+     */
     public static int lerIdade(boolean insistir){
         int idade = -1;
 
@@ -88,6 +113,10 @@ public class Main{
         return idade;
     }
 
+    /**
+     * @param insistir Deve entrar em loop até um nome válido ser dado como input?
+     * @return Telefone válido de uma pessoa dada como input ou, caso contrário, -1
+     */
     public static int lerTelefone(boolean insistir){
         int telefone = -1;
 
@@ -111,6 +140,9 @@ public class Main{
         return telefone;
     }
 
+    /** Diálogo voltado para adicionar uma pessoa no banco de dados
+     * @throws Exception
+     */
     public static void Dialogo_AdicionarPessoa() throws Exception{
         Pessoa p = new Pessoa();
 
@@ -121,6 +153,15 @@ public class Main{
 
         nome = lerNome(true);
         p.setNome(nome);
+
+        if (database.existe(nome)){
+            print("Pessoa de nome " + p.getNome() + " já existe no banco de dados");
+
+            print("--- Aperte ENTER para continuar ---");
+            waitEnter();
+
+            return;
+        } //Se pessoa já existir, termina aqui
 
         email = lerEmail(true);
         p.setEmail(email);
@@ -144,13 +185,16 @@ public class Main{
         if (pessoaAdicionada){
             print("Pessoa de nome " + p.getNome() + " adicionada com sucesso");
         } else{
-            print("Pessoa de nome " + p.getNome() + " já existe no banco de dados");
+            print("Algum erro ocorreu!"); //Teoricamente impossível o código chegar nesse else, mas vai que...
         }
 
         print("--- Aperte ENTER para continuar ---");
         waitEnter();
     }
 
+    /** Diálogo voltado para imprimir as informações de uma pessoa específica do banco de dados (Nome, Email, Idade, Telefone)
+     * @throws IOException
+     */
     public static void Dialogo_ImprimirPessoa() throws IOException{
         String nome = null;
         boolean pessoaEncontrada = true;
@@ -258,6 +302,10 @@ public class Main{
 
         limparConsole();
     }
+    /** Diálogo voltado para atualizar uma informação qualquer de uma pessoa contida no banco de dados
+     * @throws IOException
+     * @throws DatabaseException
+     */
     public static void Dialogo_AtualizarPessoa() throws IOException, DatabaseException{
         String nome = "";
         boolean pessoaEncontrada = true;
@@ -322,6 +370,10 @@ public class Main{
         }
     }
 
+
+    /** Diálogo voltado para remover uma pessoa do banco de dados
+     * @throws IOException
+     */
     public static void Dialogo_RemoverPessoa() throws IOException{
         String nome = null;
         boolean pessoaEncontrada = true;
